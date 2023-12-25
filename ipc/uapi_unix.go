@@ -25,8 +25,8 @@ const (
 )
 
 // socketDirectory is variable because it is modified by a linker
-// flag in wireguard-android.
-var socketDirectory = "/var/run/wireguard"
+// flag in cyanide-android.
+var socketDirectory = "/var/run/cyanide"
 
 func sockPath(iface string) string {
 	return fmt.Sprintf("%s/%s.sock", socketDirectory, iface)

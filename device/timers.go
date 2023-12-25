@@ -16,7 +16,7 @@ import (
 //go:linkname fastrandn runtime.fastrandn
 func fastrandn(n uint32) uint32
 
-// A Timer manages time-based aspects of the WireGuard protocol.
+// A Timer manages time-based aspects of the Cyanide protocol.
 // Timer roughly copies the interface of the Linux kernel's struct timer_list.
 type Timer struct {
 	*time.Timer

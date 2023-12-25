@@ -3,7 +3,7 @@
  * Copyright (C) 2017-2023 WireGuard LLC. All Rights Reserved.
  */
 
-// Package conn implements WireGuard's network connections.
+// Package conn implements Cyanide's network connections.
 package conn
 
 import (
@@ -58,14 +58,14 @@ type Bind interface {
 }
 
 // BindSocketToInterface is implemented by Bind objects that support being
-// tied to a single network interface. Used by wireguard-windows.
+// tied to a single network interface. Used by cyanide-windows.
 type BindSocketToInterface interface {
 	BindSocketToInterface4(interfaceIndex uint32, blackhole bool) error
 	BindSocketToInterface6(interfaceIndex uint32, blackhole bool) error
 }
 
 // PeekLookAtSocketFd is implemented by Bind objects that support having their
-// file descriptor peeked at. Used by wireguard-android.
+// file descriptor peeked at. Used by cyanide-android.
 type PeekLookAtSocketFd interface {
 	PeekLookAtSocketFd4() (fd int, err error)
 	PeekLookAtSocketFd6() (fd int, err error)

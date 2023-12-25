@@ -156,7 +156,7 @@ func TestNoiseHandshake(t *testing.T) {
 	t.Log("test key pairs")
 
 	func() {
-		testMsg := []byte("wireguard test message 1")
+		testMsg := []byte("cyanide test message 1")
 		var err error
 		var out []byte
 		var nonce [12]byte
@@ -167,7 +167,7 @@ func TestNoiseHandshake(t *testing.T) {
 	}()
 
 	func() {
-		testMsg := []byte("wireguard test message 2")
+		testMsg := []byte("cyanide test message 2")
 		var err error
 		var out []byte
 		var nonce [12]byte

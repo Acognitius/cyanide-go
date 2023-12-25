@@ -121,7 +121,7 @@ func (t *chTun) Read(packets [][]byte, sizes []int, offset int) (int, error) {
 	}
 }
 
-// Write is called by the wireguard device to deliver a packet for routing.
+// Write is called by the cyanide device to deliver a packet for routing.
 func (t *chTun) Write(packets [][]byte, offset int) (int, error) {
 	if offset == -1 {
 		close(t.c.closed)

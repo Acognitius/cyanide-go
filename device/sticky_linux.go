@@ -3,7 +3,7 @@
  * Copyright (C) 2017-2023 WireGuard LLC. All Rights Reserved.
  *
  * This implements userspace semantics of "sticky sockets", modeled after
- * WireGuard's kernelspace implementation. This is more or less a straight port
+ * Cyanide's kernelspace implementation. This is more or less a straight port
  * of the sticky-sockets.c example code:
  * https://git.zx2c4.com/WireGuard/tree/contrib/examples/sticky-sockets/sticky-sockets.c
  *

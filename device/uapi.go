@@ -46,8 +46,8 @@ var byteBufferPool = &sync.Pool{
 	New: func() any { return new(bytes.Buffer) },
 }
 
-// IpcGetOperation implements the WireGuard configuration protocol "get" operation.
-// See https://www.wireguard.com/xplatform/#configuration-protocol for details.
+// IpcGetOperation implements the Cyanide configuration protocol "get" operation.
+// See https://www.cyanide.syntlabs.com/xplatform/#configuration-protocol for details.
 func (device *Device) IpcGetOperation(w io.Writer) error {
 	device.ipcMutex.RLock()
 	defer device.ipcMutex.RUnlock()
@@ -135,8 +135,8 @@ func (device *Device) IpcGetOperation(w io.Writer) error {
 	return nil
 }
 
-// IpcSetOperation implements the WireGuard configuration protocol "set" operation.
-// See https://www.wireguard.com/xplatform/#configuration-protocol for details.
+// IpcSetOperation implements the Cyanide configuration protocol "set" operation.
+// See https://www.cyanide.syntlabs.com/xplatform/#configuration-protocol for details.
 func (device *Device) IpcSetOperation(r io.Reader) (err error) {
 	device.ipcMutex.Lock()
 	defer device.ipcMutex.Unlock()

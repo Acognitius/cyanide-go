@@ -48,18 +48,18 @@ func warning() {
 
 	fmt.Fprintln(os.Stderr, "┌──────────────────────────────────────────────────────┐")
 	fmt.Fprintln(os.Stderr, "│                                                      │")
-	fmt.Fprintln(os.Stderr, "│   Running wireguard-go is not required because this  │")
-	fmt.Fprintln(os.Stderr, "│   kernel has first class support for WireGuard. For  │")
+	fmt.Fprintln(os.Stderr, "│   Running cyanide-go is not required because this  │")
+	fmt.Fprintln(os.Stderr, "│   kernel has first class support for Cyanide. For  │")
 	fmt.Fprintln(os.Stderr, "│   information on installing the kernel module,       │")
 	fmt.Fprintln(os.Stderr, "│   please visit:                                      │")
-	fmt.Fprintln(os.Stderr, "│         https://www.wireguard.com/install/           │")
+	fmt.Fprintln(os.Stderr, "│         https://www.cyanide.syntlabs.com/install/           │")
 	fmt.Fprintln(os.Stderr, "│                                                      │")
 	fmt.Fprintln(os.Stderr, "└──────────────────────────────────────────────────────┘")
 }
 
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--version" {
-		fmt.Printf("wireguard-go v%s\n\nUserspace WireGuard daemon for %s-%s.\nInformation available at https://www.wireguard.com.\nCopyright (C) Jason A. Donenfeld <Jason@zx2c4.com>.\n", Version, runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("cyanide-go v%s\n\nUserspace Cyanide daemon for %s-%s.\nInformation available at https://www.cyanide.syntlabs.com.\nCopyright (C) Jason A. Donenfeld <Jason@zx2c4.com>.\n", Version, runtime.GOOS, runtime.GOARCH)
 		return
 	}
 
@@ -145,7 +145,7 @@ func main() {
 		fmt.Sprintf("(%s) ", interfaceName),
 	)
 
-	logger.Verbosef("Starting wireguard-go version %s", Version)
+	logger.Verbosef("Starting cyanide-go version %s", Version)
 
 	if err != nil {
 		logger.Errorf("Failed to create TUN device: %v", err)

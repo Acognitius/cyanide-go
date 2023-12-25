@@ -1,21 +1,21 @@
-# Go Implementation of [WireGuard](https://www.wireguard.com/)
+# Go Implementation of [Cyanide](https://www.cyanide.syntlabs.com/)
 
-This is an implementation of WireGuard in Go.
+This is an implementation of Cyanide in Go.
 
 ## Usage
 
-Most Linux kernel WireGuard users are used to adding an interface with `ip link add wg0 type wireguard`. With wireguard-go, instead simply run:
+Most Linux kernel Cyanide users are used to adding an interface with `ip link add wg0 type cyanide`. With cyanide-go, instead simply run:
 
 ```
-$ wireguard-go wg0
+$ cyanide-go wg0
 ```
 
-This will create an interface and fork into the background. To remove the interface, use the usual `ip link del wg0`, or if your system does not support removing interfaces directly, you may instead remove the control socket via `rm -f /var/run/wireguard/wg0.sock`, which will result in wireguard-go shutting down.
+This will create an interface and fork into the background. To remove the interface, use the usual `ip link del wg0`, or if your system does not support removing interfaces directly, you may instead remove the control socket via `rm -f /var/run/cyanide/wg0.sock`, which will result in cyanide-go shutting down.
 
-To run wireguard-go without forking to the background, pass `-f` or `--foreground`:
+To run cyanide-go without forking to the background, pass `-f` or `--foreground`:
 
 ```
-$ wireguard-go -f wg0
+$ cyanide-go -f wg0
 ```
 
 When an interface is running, you may use [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) to configure it, as well as the usual `ip(8)` and `ifconfig(8)` commands.
@@ -26,7 +26,7 @@ To run with more logging you may set the environment variable `LOG_LEVEL=debug`.
 
 ### Linux
 
-This will run on Linux; however you should instead use the kernel module, which is faster and better integrated into the OS. See the [installation page](https://www.wireguard.com/install/) for instructions.
+This will run on Linux; however you should instead use the kernel module, which is faster and better integrated into the OS. See the [installation page](https://www.cyanide.syntlabs.com/install/) for instructions.
 
 ### macOS
 
@@ -49,8 +49,8 @@ This will run on OpenBSD. It does not yet support sticky sockets. Fwmark is mapp
 This requires an installation of the latest version of [Go](https://go.dev/).
 
 ```
-$ git clone https://git.zx2c4.com/wireguard-go
-$ cd wireguard-go
+$ git clone https://github.com/syntlabs/cyanide-go
+$ cd cyanide-go
 $ make
 ```
 

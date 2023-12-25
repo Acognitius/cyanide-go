@@ -47,7 +47,7 @@ type NativeTun struct {
 }
 
 var (
-	WintunTunnelType          = "WireGuard"
+	WintunTunnelType          = "Cyanide"
 	WintunStaticRequestedGUID *windows.GUID
 )
 

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Test that timestamps are monotonic as required by Wireguard and that
+// Test that timestamps are monotonic as required by Cyanide and that
 // nanosecond-level information is whitened to prevent side channel attacks.
 func TestMonotonic(t *testing.T) {
 	startTime := time.Unix(0, 123456789) // a nontrivial bit pattern
