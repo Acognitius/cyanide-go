@@ -18,8 +18,8 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/unix"
-	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/rwcancel"
+	"github.com/syntlabs/cyanide-go/conn"
+	"github.com/syntlabs/cyanide-go/rwcancel"
 )
 
 const (

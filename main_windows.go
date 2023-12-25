@@ -12,11 +12,11 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/ipc"
+	"github.com/syntlabs/cyanide-go/conn"
+	"github.com/syntlabs/cyanide-go/device"
+	"github.com/syntlabs/cyanide-go/ipc"
 
-	"golang.zx2c4.com/wireguard/tun"
+	"github.com/syntlabs/cyanide-go/tun"
 )
 
 const (
