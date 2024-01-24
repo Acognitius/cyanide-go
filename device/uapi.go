@@ -97,7 +97,35 @@ func (device *Device) IpcGetOperation(w io.Writer) error {
 		if device.net.fwmark != 0 {
 			sendf("fwmark=%d", device.net.fwmark)
 		}
-
+		if device.isAdvancedSecurityOn() {
+			if device.aSecConf.junkPacketCount != 0 {
+				sendf("jc=%d", device.aSecConf.junkPacketCount)
+			}
+			if device.aSecConf.junkPacketMinSize != 0 {
+				sendf("jmin=%d", device.aSecConf.junkPacketMinSize)
+			}
+			if device.aSecConf.junkPacketMaxSize != 0 {
+				sendf("jmax=%d", device.aSecConf.junkPacketMaxSize)
+			}
+			if device.aSecConf.initPacketJunkSize != 0 {
+				sendf("s1=%d", device.aSecConf.initPacketJunkSize)
+			}
+			if device.aSecConf.responsePacketJunkSize != 0 {
+				sendf("s2=%d", device.aSecConf.responsePacketJunkSize)
+			}
+			if device.aSecConf.initPacketMagicHeader != 0 {
+				sendf("h1=%d", device.aSecConf.initPacketMagicHeader)
+			}
+			if device.aSecConf.responsePacketMagicHeader != 0 {
+				sendf("h2=%d", device.aSecConf.responsePacketMagicHeader)
+			}
+			if device.aSecConf.underloadPacketMagicHeader != 0 {
+				sendf("h3=%d", device.aSecConf.underloadPacketMagicHeader)
+			}
+			if device.aSecConf.transportPacketMagicHeader != 0 {
+				sendf("h4=%d", device.aSecConf.transportPacketMagicHeader)
+			}
+		}
 		for _, peer := range device.peers.keyMap {
 			// Serialize peer state.
 			peer.handshake.mutex.RLock()
@@ -150,12 +178,16 @@ func (device *Device) IpcSetOperation(r io.Reader) (err error) {
 
 	peer := new(ipcSetPeer)
 	deviceConfig := true
-
+	tempASecConf := aSecConfType{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
 			// Blank line means terminate operation.
+			err := device.handlePostConfig(&tempASecConf)
+			if err != nil {
+				return err
+			}
 			peer.handlePostConfig()
 			return nil
 		}
@@ -179,13 +211,17 @@ func (device *Device) IpcSetOperation(r io.Reader) (err error) {
 
 		var err error
 		if deviceConfig {
-			err = device.handleDeviceLine(key, value)
+			err = device.handleDeviceLine(key, value, &tempASecConf)
 		} else {
 			err = device.handlePeerLine(peer, key, value)
 		}
 		if err != nil {
 			return err
 		}
+	}
+	err = device.handlePostConfig(&tempASecConf)
+	if err != nil {
+		return err
 	}
 	peer.handlePostConfig()
 
@@ -195,7 +231,7 @@ func (device *Device) IpcSetOperation(r io.Reader) (err error) {
 	return nil
 }
 
-func (device *Device) handleDeviceLine(key, value string) error {
+func (device *Device) handleDeviceLine(key, value string, tempASecConf *aSecConfType) error {
 	switch key {
 	case "private_key":
 		var sk NoisePrivateKey
@@ -240,6 +276,83 @@ func (device *Device) handleDeviceLine(key, value string) error {
 		}
 		device.log.Verbosef("UAPI: Removing all peers")
 		device.RemoveAllPeers()
+		
+	case "jc":
+		junkPacketCount, err := strconv.Atoi(value)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse junk_packet_count %w", err)
+		}
+		device.log.Verbosef("UAPI: Updating junk_packet_count")
+		tempASecConf.junkPacketCount = junkPacketCount
+		tempASecConf.isSet = true
+
+	case "jmin":
+		junkPacketMinSize, err := strconv.Atoi(value)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse junk_packet_min_size %w", err)
+		}
+		device.log.Verbosef("UAPI: Updating junk_packet_min_size")
+		tempASecConf.junkPacketMinSize = junkPacketMinSize
+		tempASecConf.isSet = true
+
+	case "jmax":
+		junkPacketMaxSize, err := strconv.Atoi(value)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse junk_packet_max_size %w", err)
+		}
+		device.log.Verbosef("UAPI: Updating junk_packet_max_size")
+		tempASecConf.junkPacketMaxSize = junkPacketMaxSize
+		tempASecConf.isSet = true
+
+	case "s1":
+		initPacketJunkSize, err := strconv.Atoi(value)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse init_packet_junk_size %w", err)
+		}
+		device.log.Verbosef("UAPI: Updating init_packet_junk_size")
+		tempASecConf.initPacketJunkSize = initPacketJunkSize
+		tempASecConf.isSet = true
+
+	case "s2":
+		responsePacketJunkSize, err := strconv.Atoi(value)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse response_packet_junk_size %w", err)
+		}
+		device.log.Verbosef("UAPI: Updating response_packet_junk_size")
+		tempASecConf.responsePacketJunkSize = responsePacketJunkSize
+		tempASecConf.isSet = true
+
+	case "h1":
+		initPacketMagicHeader, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse init_packet_magic_header %w", err)
+		}
+		tempASecConf.initPacketMagicHeader = uint32(initPacketMagicHeader)
+		tempASecConf.isSet = true
+
+	case "h2":
+		responsePacketMagicHeader, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse response_packet_magic_header %w", err)
+		}
+		tempASecConf.responsePacketMagicHeader = uint32(responsePacketMagicHeader)
+		tempASecConf.isSet = true
+
+	case "h3":
+		underloadPacketMagicHeader, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse underload_packet_magic_header %w", err)
+		}
+		tempASecConf.underloadPacketMagicHeader = uint32(underloadPacketMagicHeader)
+		tempASecConf.isSet = true
+
+	case "h4":
+		transportPacketMagicHeader, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return ipcErrorf(ipc.IpcErrorInvalid, "faield to parse transport_packet_magic_header %w", err)
+		}
+		tempASecConf.transportPacketMagicHeader = uint32(transportPacketMagicHeader)
+		tempASecConf.isSet = true
 
 	default:
 		return ipcErrorf(ipc.IpcErrorInvalid, "invalid UAPI device key: %v", key)
