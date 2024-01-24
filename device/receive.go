@@ -126,7 +126,7 @@ func (device *Device) RoutineReceiveIncoming(maxBatchSize int, recv conn.Receive
 			return
 		}
 		deathSpiral = 0
-
+		device.aSecMux.RLock()
 		// handle each packet in the batch
 		for i, size := range sizes[:count] {
 			if size < MinMessageSize {
@@ -136,7 +136,29 @@ func (device *Device) RoutineReceiveIncoming(maxBatchSize int, recv conn.Receive
 			// check size of packet
 
 			packet := bufsArrs[i][:size]
-			msgType := binary.LittleEndian.Uint32(packet[:4])
+			var msgType uint32
+			if device.isAdvancedSecurityOn() {
+				if assumedMsgType, ok := packetSizeToMsgType[size]; ok {
+					junkSize := msgTypeToJunkSize[assumedMsgType]
+					// transport size can align with other header types;
+					// making sure we have the right msgType
+					msgType = binary.LittleEndian.Uint32(packet[junkSize : junkSize+4])
+					if msgType == assumedMsgType {
+						packet = packet[junkSize:]
+					} else {
+						device.log.Verbosef("Transport packet lined up with another msg type")
+						msgType = binary.LittleEndian.Uint32(packet[:4])
+					}
+				} else {
+					msgType = binary.LittleEndian.Uint32(packet[:4])
+					if msgType != MessageTransportType {
+						device.log.Verbosef("ASec: Received message with unknown type")
+						continue
+					}
+				}
+			} else {
+				msgType = binary.LittleEndian.Uint32(packet[:4])
+			}
 
 			switch msgType {
 
@@ -221,6 +243,7 @@ func (device *Device) RoutineReceiveIncoming(maxBatchSize int, recv conn.Receive
 			default:
 			}
 		}
+		device.aSecMux.RUnlock()
 		for peer, elemsContainer := range elemsByPeer {
 			if peer.isRunning.Load() {
 				peer.queue.inbound.c <- elemsContainer
@@ -278,7 +301,7 @@ func (device *Device) RoutineHandshake(id int) {
 	device.log.Verbosef("Routine: handshake worker %d - started", id)
 
 	for elem := range device.queue.handshake.c {
-
+		device.aSecMux.RLock()
 		// handle cookie fields and ratelimiting
 
 		switch elem.msgType {
@@ -427,6 +450,7 @@ func (device *Device) RoutineHandshake(id int) {
 			peer.SendKeepalive()
 		}
 	skip:
+		device.aSecMux.RUnlock()
 		device.PutMessageBuffer(elem.buffer)
 	}
 }
