@@ -16,6 +16,7 @@ import (
 	"github.com/syntlabs/cyanide-go/ratelimiter"
 	"github.com/syntlabs/cyanide-go/rwcancel"
 	"github.com/syntlabs/cyanide-go/tun"
+	"github.com/syntlabs/cyanide-go/ipc"
 	"github.com/tevino/abool/v2"
 )
 
