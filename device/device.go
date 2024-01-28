@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/syntlabs/cyanide-go/conn"
+	"github.com/syntlabs/cyanide-go/ipc"
 	"github.com/syntlabs/cyanide-go/ratelimiter"
 	"github.com/syntlabs/cyanide-go/rwcancel"
 	"github.com/syntlabs/cyanide-go/tun"
