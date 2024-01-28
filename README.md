@@ -1,3 +1,5 @@
+[![Build](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml/badge.svg)](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml)
+
 # Go Implementation of [Cyanide](https://www.cyanide.syntlabs.com/)
 
 This is an implementation of Cyanide in Go.
