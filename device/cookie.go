@@ -50,7 +50,7 @@ func (st *CookieChecker) Init(pk NoisePublicKey) {
 
 	func() {
 		hash, _ := blake2s.New256(nil)
-		hash.Write([]byte(WGLabelMAC1))
+		hash.Write([]byte(CNLabelMAC1))
 		hash.Write(pk[:])
 		hash.Sum(st.mac1.key[:0])
 	}()
@@ -59,7 +59,7 @@ func (st *CookieChecker) Init(pk NoisePublicKey) {
 
 	func() {
 		hash, _ := blake2s.New256(nil)
-		hash.Write([]byte(WGLabelCookie))
+		hash.Write([]byte(CNLabelCookie))
 		hash.Write(pk[:])
 		hash.Sum(st.mac2.encryptionKey[:0])
 	}()
@@ -177,14 +177,14 @@ func (st *CookieGenerator) Init(pk NoisePublicKey) {
 
 	func() {
 		hash, _ := blake2s.New256(nil)
-		hash.Write([]byte(WGLabelMAC1))
+		hash.Write([]byte(CNLabelMAC1))
 		hash.Write(pk[:])
 		hash.Sum(st.mac1.key[:0])
 	}()
 
 	func() {
 		hash, _ := blake2s.New256(nil)
-		hash.Write([]byte(WGLabelCookie))
+		hash.Write([]byte(CNLabelCookie))
 		hash.Write(pk[:])
 		hash.Sum(st.mac2.encryptionKey[:0])
 	}()

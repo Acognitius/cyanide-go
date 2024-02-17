@@ -17,7 +17,7 @@ import (
 
 func TestWaitPool(t *testing.T) {
 	t.Skip("Currently disabled")
-	var wg sync.WaitGroup
+	var cn sync.WaitGroup
 	var trials atomic.Int32
 	startTrials := int32(100000)
 	if raceEnabled {
@@ -30,7 +30,7 @@ func TestWaitPool(t *testing.T) {
 		t.Skip("Not enough cores")
 	}
 	p := NewWaitPool(uint32(workers-4), func() any { return make([]byte, 16) })
-	wg.Add(workers)
+	cn.Add(workers)
 	var max atomic.Uint32
 	updateMax := func() {
 		count := p.count.Load()
@@ -49,7 +49,7 @@ func TestWaitPool(t *testing.T) {
 	}
 	for i := 0; i < workers; i++ {
 		go func() {
-			defer wg.Done()
+			defer cn.Done()
 			for trials.Add(-1) > 0 {
 				updateMax()
 				x := p.Get()
@@ -61,14 +61,14 @@ func TestWaitPool(t *testing.T) {
 			}
 		}()
 	}
-	wg.Wait()
+	cn.Wait()
 	if max.Load() != p.max {
 		t.Errorf("Actual maximum count (%d) != ideal maximum count (%d)", max, p.max)
 	}
 }
 
 func BenchmarkWaitPool(b *testing.B) {
-	var wg sync.WaitGroup
+	var cn sync.WaitGroup
 	var trials atomic.Int32
 	trials.Store(int32(b.N))
 	workers := runtime.NumCPU() + 2
@@ -76,11 +76,11 @@ func BenchmarkWaitPool(b *testing.B) {
 		b.Skip("Not enough cores")
 	}
 	p := NewWaitPool(uint32(workers-4), func() any { return make([]byte, 16) })
-	wg.Add(workers)
+	cn.Add(workers)
 	b.ResetTimer()
 	for i := 0; i < workers; i++ {
 		go func() {
-			defer wg.Done()
+			defer cn.Done()
 			for trials.Add(-1) > 0 {
 				x := p.Get()
 				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond)
@@ -88,11 +88,11 @@ func BenchmarkWaitPool(b *testing.B) {
 			}
 		}()
 	}
-	wg.Wait()
+	cn.Wait()
 }
 
 func BenchmarkWaitPoolEmpty(b *testing.B) {
-	var wg sync.WaitGroup
+	var cn sync.WaitGroup
 	var trials atomic.Int32
 	trials.Store(int32(b.N))
 	workers := runtime.NumCPU() + 2
@@ -100,11 +100,11 @@ func BenchmarkWaitPoolEmpty(b *testing.B) {
 		b.Skip("Not enough cores")
 	}
 	p := NewWaitPool(0, func() any { return make([]byte, 16) })
-	wg.Add(workers)
+	cn.Add(workers)
 	b.ResetTimer()
 	for i := 0; i < workers; i++ {
 		go func() {
-			defer wg.Done()
+			defer cn.Done()
 			for trials.Add(-1) > 0 {
 				x := p.Get()
 				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond)
@@ -112,11 +112,11 @@ func BenchmarkWaitPoolEmpty(b *testing.B) {
 			}
 		}()
 	}
-	wg.Wait()
+	cn.Wait()
 }
 
 func BenchmarkSyncPool(b *testing.B) {
-	var wg sync.WaitGroup
+	var cn sync.WaitGroup
 	var trials atomic.Int32
 	trials.Store(int32(b.N))
 	workers := runtime.NumCPU() + 2
@@ -124,11 +124,11 @@ func BenchmarkSyncPool(b *testing.B) {
 		b.Skip("Not enough cores")
 	}
 	p := sync.Pool{New: func() any { return make([]byte, 16) }}
-	wg.Add(workers)
+	cn.Add(workers)
 	b.ResetTimer()
 	for i := 0; i < workers; i++ {
 		go func() {
-			defer wg.Done()
+			defer cn.Done()
 			for trials.Add(-1) > 0 {
 				x := p.Get()
 				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond)
@@ -136,5 +136,5 @@ func BenchmarkSyncPool(b *testing.B) {
 			}
 		}()
 	}
-	wg.Wait()
+	cn.Wait()
 }

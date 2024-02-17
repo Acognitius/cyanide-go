@@ -1,4 +1,4 @@
-[![Build](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml/badge.svg)](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml)
+[![Syntlabs](https://img.shields.io/badge/Maintained%20by-Syntlabs-blue)](https://syntlabs.com) [![Build](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml/badge.svg)](https://github.com/syntlabs/cyanide-go/actions/workflows/makefile.yml)
 
 # Go Implementation of [Cyanide](https://www.cyanide.syntlabs.com/)
 
@@ -6,21 +6,21 @@ This is an implementation of Cyanide in Go.
 
 ## Usage
 
-Most Linux kernel Cyanide users are used to adding an interface with `ip link add wg0 type cyanide`. With cyanide-go, instead simply run:
+Most Linux kernel Cyanide users are used to adding an interface with `ip link add cn0 type cyanide`. With cyanide-go, instead simply run:
 
 ```
-$ cyanide-go wg0
+$ cyanide-go cn0
 ```
 
-This will create an interface and fork into the background. To remove the interface, use the usual `ip link del wg0`, or if your system does not support removing interfaces directly, you may instead remove the control socket via `rm -f /var/run/cyanide/wg0.sock`, which will result in cyanide-go shutting down.
+This will create an interface and fork into the background. To remove the interface, use the usual `ip link del cn0`, or if your system does not support removing interfaces directly, you may instead remove the control socket via `rm -f /var/run/cyanide/cn0.sock`, which will result in cyanide-go shutting down.
 
 To run cyanide-go without forking to the background, pass `-f` or `--foreground`:
 
 ```
-$ cyanide-go -f wg0
+$ cyanide-go -f cn0
 ```
 
-When an interface is running, you may use [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) to configure it, as well as the usual `ip(8)` and `ifconfig(8)` commands.
+When an interface is running, you may use [`cn(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/cn.8) to configure it, as well as the usual `ip(8)` and `ifconfig(8)` commands.
 
 To run with more logging you may set the environment variable `LOG_LEVEL=debug`.
 
@@ -32,7 +32,7 @@ This will run on Linux; however you should instead use the kernel module, which 
 
 ### macOS
 
-This runs on macOS using the utun driver. It does not yet support sticky sockets, and won't support fwmarks because of Darwin limitations. Since the utun driver cannot have arbitrary interface names, you must either use `utun[0-9]+` for an explicit interface name or `utun` to have the kernel select one for you. If you choose `utun` as the interface name, and the environment variable `WG_TUN_NAME_FILE` is defined, then the actual name of the interface chosen by the kernel is written to the file specified by that variable.
+This runs on macOS using the utun driver. It does not yet support sticky sockets, and won't support fwmarks because of Darwin limitations. Since the utun driver cannot have arbitrary interface names, you must either use `utun[0-9]+` for an explicit interface name or `utun` to have the kernel select one for you. If you choose `utun` as the interface name, and the environment variable `CN_TUN_NAME_FILE` is defined, then the actual name of the interface chosen by the kernel is written to the file specified by that variable.
 
 ### Windows
 
@@ -44,7 +44,7 @@ This will run on FreeBSD. It does not yet support sticky sockets. Fwmark is mapp
 
 ### OpenBSD
 
-This will run on OpenBSD. It does not yet support sticky sockets. Fwmark is mapped to `SO_RTABLE`. Since the tun driver cannot have arbitrary interface names, you must either use `tun[0-9]+` for an explicit interface name or `tun` to have the program select one for you. If you choose `tun` as the interface name, and the environment variable `WG_TUN_NAME_FILE` is defined, then the actual name of the interface chosen by the kernel is written to the file specified by that variable.
+This will run on OpenBSD. It does not yet support sticky sockets. Fwmark is mapped to `SO_RTABLE`. Since the tun driver cannot have arbitrary interface names, you must either use `tun[0-9]+` for an explicit interface name or `tun` to have the program select one for you. If you choose `tun` as the interface name, and the environment variable `CN_TUN_NAME_FILE` is defined, then the actual name of the interface chosen by the kernel is written to the file specified by that variable.
 
 ## Building
 

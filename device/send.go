@@ -271,7 +271,7 @@ func (device *Device) RoutineReadFromTUN() {
 	defer func() {
 		device.log.Verbosef("Routine: TUN reader - stopped")
 		device.state.stopping.Done()
-		device.queue.encryption.wg.Done()
+		device.queue.encryption.cn.Done()
 	}()
 
 	device.log.Verbosef("Routine: TUN reader - started")

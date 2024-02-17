@@ -132,7 +132,7 @@ func CreateTUN(name string, mtu int) (Device, error) {
 	tun, err := CreateTUNFromFile(tunfile, mtu)
 
 	if err == nil && name == "tun" {
-		fname := os.Getenv("WG_TUN_NAME_FILE")
+		fname := os.Getenv("CN_TUN_NAME_FILE")
 		if fname != "" {
 			os.WriteFile(fname, []byte(tun.(*NativeTun).name+"\n"), 0o400)
 		}

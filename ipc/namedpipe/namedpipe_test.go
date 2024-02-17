@@ -591,8 +591,8 @@ func TestMessageReadMode(t *testing.T) {
 	if maj, _, _ := windows.RtlGetNtVersionNumbers(); maj <= 8 {
 		t.Skipf("Skipping on Windows %d", maj)
 	}
-	var wg sync.WaitGroup
-	defer wg.Wait()
+	var cn sync.WaitGroup
+	defer cn.Wait()
 	pipePath := randomPipePath()
 	l, err := (&namedpipe.ListenConfig{MessageMode: true}).Listen(pipePath)
 	if err != nil {
@@ -602,9 +602,9 @@ func TestMessageReadMode(t *testing.T) {
 
 	msg := ([]byte)("hello world")
 
-	wg.Add(1)
+	cn.Add(1)
 	go func() {
-		defer wg.Done()
+		defer cn.Done()
 		s, err := l.Accept()
 		if err != nil {
 			t.Fatal(err)
@@ -654,14 +654,14 @@ func TestListenConnectRace(t *testing.T) {
 	}
 	pipePath := randomPipePath()
 	for i := 0; i < 50 && !t.Failed(); i++ {
-		var wg sync.WaitGroup
-		wg.Add(1)
+		var cn sync.WaitGroup
+		cn.Add(1)
 		go func() {
 			c, err := namedpipe.DialTimeout(pipePath, time.Duration(0))
 			if err == nil {
 				c.Close()
 			}
-			wg.Done()
+			cn.Done()
 		}()
 		s, err := namedpipe.Listen(pipePath)
 		if err != nil {
@@ -669,6 +669,6 @@ func TestListenConnectRace(t *testing.T) {
 		} else {
 			s.Close()
 		}
-		wg.Wait()
+		cn.Wait()
 	}
 }

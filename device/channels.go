@@ -12,25 +12,25 @@ import (
 )
 
 // An outboundQueue is a channel of QueueOutboundElements awaiting encryption.
-// An outboundQueue is ref-counted using its wg field.
+// An outboundQueue is ref-counted using its cn field.
 // An outboundQueue created with newOutboundQueue has one reference.
-// Every additional writer must call wg.Add(1).
-// Every completed writer must call wg.Done().
+// Every additional writer must call cn.Add(1).
+// Every completed writer must call cn.Done().
 // When no further writers will be added,
-// call wg.Done to remove the initial reference.
+// call cn.Done to remove the initial reference.
 // When the refcount hits 0, the queue's channel is closed.
 type outboundQueue struct {
 	c  chan *QueueOutboundElementsContainer
-	wg sync.WaitGroup
+	cn sync.WaitGroup
 }
 
 func newOutboundQueue() *outboundQueue {
 	q := &outboundQueue{
 		c: make(chan *QueueOutboundElementsContainer, QueueOutboundSize),
 	}
-	q.wg.Add(1)
+	q.cn.Add(1)
 	go func() {
-		q.wg.Wait()
+		q.cn.Wait()
 		close(q.c)
 	}()
 	return q
@@ -39,16 +39,16 @@ func newOutboundQueue() *outboundQueue {
 // A inboundQueue is similar to an outboundQueue; see those docs.
 type inboundQueue struct {
 	c  chan *QueueInboundElementsContainer
-	wg sync.WaitGroup
+	cn sync.WaitGroup
 }
 
 func newInboundQueue() *inboundQueue {
 	q := &inboundQueue{
 		c: make(chan *QueueInboundElementsContainer, QueueInboundSize),
 	}
-	q.wg.Add(1)
+	q.cn.Add(1)
 	go func() {
-		q.wg.Wait()
+		q.cn.Wait()
 		close(q.c)
 	}()
 	return q
@@ -57,16 +57,16 @@ func newInboundQueue() *inboundQueue {
 // A handshakeQueue is similar to an outboundQueue; see those docs.
 type handshakeQueue struct {
 	c  chan QueueHandshakeElement
-	wg sync.WaitGroup
+	cn sync.WaitGroup
 }
 
 func newHandshakeQueue() *handshakeQueue {
 	q := &handshakeQueue{
 		c: make(chan QueueHandshakeElement, QueueHandshakeSize),
 	}
-	q.wg.Add(1)
+	q.cn.Add(1)
 	go func() {
-		q.wg.Wait()
+		q.cn.Wait()
 		close(q.c)
 	}()
 	return q
