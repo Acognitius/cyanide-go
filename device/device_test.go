@@ -298,11 +298,11 @@ func TestUpDown(t *testing.T) {
 				pair[i].dev.IpcSet(fmt.Sprintf("public_key=%s\npersistent_keepalive_interval=1\n", hex.EncodeToString(k[:])))
 			}
 		}
-		var wg sync.WaitGroup
-		wg.Add(len(pair))
+		var cn sync.WaitGroup
+		cn.Add(len(pair))
 		for i := range pair {
 			go func(d *Device) {
-				defer wg.Done()
+				defer cn.Done()
 				for i := 0; i < itrials; i++ {
 					if err := d.Up(); err != nil {
 						t.Errorf("failed up bring up device: %v", err)
@@ -315,7 +315,7 @@ func TestUpDown(t *testing.T) {
 				}
 			}(pair[i].dev)
 		}
-		wg.Wait()
+		cn.Wait()
 		for i := range pair {
 			pair[i].dev.Up()
 			pair[i].dev.Close()
@@ -431,10 +431,10 @@ func BenchmarkThroughput(b *testing.B) {
 	// starting when we receive the first packet.
 	var recv atomic.Uint64
 	var elapsed time.Duration
-	var wg sync.WaitGroup
-	wg.Add(1)
+	var cn sync.WaitGroup
+	cn.Add(1)
 	go func() {
-		defer wg.Done()
+		defer cn.Done()
 		var start time.Time
 		for {
 			<-pair[0].tun.Inbound
@@ -458,7 +458,7 @@ func BenchmarkThroughput(b *testing.B) {
 		sent++
 		pingc <- ping
 	}
-	wg.Wait()
+	cn.Wait()
 
 	b.ReportMetric(float64(elapsed)/float64(b.N), "ns/op")
 	b.ReportMetric(1-float64(b.N)/float64(sent), "packet-loss")

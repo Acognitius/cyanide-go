@@ -14,5 +14,6 @@ require (
 
 require (
 	github.com/google/btree v1.0.1 // indirect
+	github.com/tevino/abool/v2 v2.1.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 )

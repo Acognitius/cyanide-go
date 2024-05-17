@@ -17,7 +17,7 @@ import (
 )
 
 func TestFormatting(t *testing.T) {
-	var wg sync.WaitGroup
+	var cn sync.WaitGroup
 	filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			t.Errorf("unable to walk %s: %v", path, err)
@@ -26,9 +26,9 @@ func TestFormatting(t *testing.T) {
 		if d.IsDir() || filepath.Ext(path) != ".go" {
 			return nil
 		}
-		wg.Add(1)
+		cn.Add(1)
 		go func(path string) {
-			defer wg.Done()
+			defer cn.Done()
 			src, err := os.ReadFile(path)
 			if err != nil {
 				t.Errorf("unable to read %s: %v", path, err)
@@ -48,5 +48,5 @@ func TestFormatting(t *testing.T) {
 		}(path)
 		return nil
 	})
-	wg.Wait()
+	cn.Wait()
 }

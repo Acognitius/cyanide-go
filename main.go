@@ -27,9 +27,9 @@ const (
 )
 
 const (
-	ENV_WG_TUN_FD             = "WG_TUN_FD"
-	ENV_WG_UAPI_FD            = "WG_UAPI_FD"
-	ENV_WG_PROCESS_FOREGROUND = "WG_PROCESS_FOREGROUND"
+	ENV_CN_TUN_FD             = "CN_TUN_FD"
+	ENV_CN_UAPI_FD            = "CN_UAPI_FD"
+	ENV_CN_PROCESS_FOREGROUND = "CN_PROCESS_FOREGROUND"
 )
 
 func printUsage() {
@@ -39,7 +39,7 @@ func printUsage() {
 func warning() {
 	switch runtime.GOOS {
 	case "linux", "freebsd", "openbsd":
-		if os.Getenv(ENV_WG_PROCESS_FOREGROUND) == "1" {
+		if os.Getenv(ENV_CN_PROCESS_FOREGROUND) == "1" {
 			return
 		}
 	default:
@@ -92,7 +92,7 @@ func main() {
 	}
 
 	if !foreground {
-		foreground = os.Getenv(ENV_WG_PROCESS_FOREGROUND) == "1"
+		foreground = os.Getenv(ENV_CN_PROCESS_FOREGROUND) == "1"
 	}
 
 	// get log level (default: info)
@@ -112,7 +112,7 @@ func main() {
 	// open TUN device (or use supplied fd)
 
 	tdev, err := func() (tun.Device, error) {
-		tunFdStr := os.Getenv(ENV_WG_TUN_FD)
+		tunFdStr := os.Getenv(ENV_CN_TUN_FD)
 		if tunFdStr == "" {
 			return tun.CreateTUN(interfaceName, device.DefaultMTU)
 		}
@@ -155,7 +155,7 @@ func main() {
 	// open UAPI file (or use supplied fd)
 
 	fileUAPI, err := func() (*os.File, error) {
-		uapiFdStr := os.Getenv(ENV_WG_UAPI_FD)
+		uapiFdStr := os.Getenv(ENV_CN_UAPI_FD)
 		if uapiFdStr == "" {
 			return ipc.UAPIOpen(interfaceName)
 		}
@@ -178,9 +178,9 @@ func main() {
 
 	if !foreground {
 		env := os.Environ()
-		env = append(env, fmt.Sprintf("%s=3", ENV_WG_TUN_FD))
-		env = append(env, fmt.Sprintf("%s=4", ENV_WG_UAPI_FD))
-		env = append(env, fmt.Sprintf("%s=1", ENV_WG_PROCESS_FOREGROUND))
+		env = append(env, fmt.Sprintf("%s=3", ENV_CN_TUN_FD))
+		env = append(env, fmt.Sprintf("%s=4", ENV_CN_UAPI_FD))
+		env = append(env, fmt.Sprintf("%s=1", ENV_CN_PROCESS_FOREGROUND))
 		files := [3]*os.File{}
 		if os.Getenv("LOG_LEVEL") != "" && logLevel != device.LogLevelSilent {
 			files[0], _ = os.Open(os.DevNull)

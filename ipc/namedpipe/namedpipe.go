@@ -441,7 +441,7 @@ func connectPipe(p *file) error {
 	if err != nil {
 		return err
 	}
-	defer p.wg.Done()
+	defer p.cn.Done()
 
 	err = windows.ConnectNamedPipe(p.handle, &c.o)
 	_, err = p.asyncIo(c, nil, 0, err)

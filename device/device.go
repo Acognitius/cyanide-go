@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/syntlabs/cyanide-go/conn"
+	"github.com/syntlabs/cyanide-go/ipc"
 	"github.com/syntlabs/cyanide-go/ratelimiter"
 	"github.com/syntlabs/cyanide-go/rwcancel"
 	"github.com/syntlabs/cyanide-go/tun"
@@ -331,7 +332,7 @@ func NewDevice(tunDevice tun.Device, bind conn.Bind, logger *Logger) *Device {
 
 	cpus := runtime.NumCPU()
 	device.state.stopping.Wait()
-	device.queue.encryption.wg.Add(cpus) // One for each RoutineHandshake
+	device.queue.encryption.cn.Add(cpus) // One for each RoutineHandshake
 	for i := 0; i < cpus; i++ {
 		go device.RoutineEncryption(i + 1)
 		go device.RoutineDecryption(i + 1)
@@ -339,7 +340,7 @@ func NewDevice(tunDevice tun.Device, bind conn.Bind, logger *Logger) *Device {
 	}
 
 	device.state.stopping.Add(1)      // RoutineReadFromTUN
-	device.queue.encryption.wg.Add(1) // RoutineReadFromTUN
+	device.queue.encryption.cn.Add(1) // RoutineReadFromTUN
 	go device.RoutineReadFromTUN()
 	go device.RoutineTUNEventReader()
 
@@ -409,9 +410,9 @@ func (device *Device) Close() {
 	// We kept a reference to the encryption and decryption queues,
 	// in case we started any new peers that might write to them.
 	// No new peers are coming; we are done with these queues.
-	device.queue.encryption.wg.Done()
-	device.queue.decryption.wg.Done()
-	device.queue.handshake.wg.Done()
+	device.queue.encryption.cn.Done()
+	device.queue.decryption.cn.Done()
+	device.queue.handshake.cn.Done()
 	device.state.stopping.Wait()
 
 	device.rate.limiter.Close()
@@ -538,8 +539,8 @@ func (device *Device) BindUpdate() error {
 
 	// start receiving routines
 	device.net.stopping.Add(len(recvFns))
-	device.queue.decryption.wg.Add(len(recvFns)) // each RoutineReceiveIncoming goroutine writes to device.queue.decryption
-	device.queue.handshake.wg.Add(len(recvFns))  // each RoutineReceiveIncoming goroutine writes to device.queue.handshake
+	device.queue.decryption.cn.Add(len(recvFns)) // each RoutineReceiveIncoming goroutine writes to device.queue.decryption
+	device.queue.handshake.cn.Add(len(recvFns))  // each RoutineReceiveIncoming goroutine writes to device.queue.handshake
 	batchSize := netc.bind.BatchSize()
 	for _, fn := range recvFns {
 		go device.RoutineReceiveIncoming(batchSize, fn)

@@ -75,8 +75,8 @@ func (device *Device) RoutineReceiveIncoming(maxBatchSize int, recv conn.Receive
 	recvName := recv.PrettyName()
 	defer func() {
 		device.log.Verbosef("Routine: receive incoming %s - stopped", recvName)
-		device.queue.decryption.wg.Done()
-		device.queue.handshake.wg.Done()
+		device.queue.decryption.cn.Done()
+		device.queue.handshake.cn.Done()
 		device.net.stopping.Done()
 	}()
 
@@ -296,7 +296,7 @@ func (device *Device) RoutineDecryption(id int) {
 func (device *Device) RoutineHandshake(id int) {
 	defer func() {
 		device.log.Verbosef("Routine: handshake worker %d - stopped", id)
-		device.queue.encryption.wg.Done()
+		device.queue.encryption.cn.Done()
 	}()
 	device.log.Verbosef("Routine: handshake worker %d - started", id)
 

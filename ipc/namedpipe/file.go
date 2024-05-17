@@ -51,8 +51,8 @@ func initIo() {
 // It takes ownership of this handle and will close it if it is garbage collected.
 type file struct {
 	handle        windows.Handle
-	wg            sync.WaitGroup
-	wgLock        sync.RWMutex
+	cn            sync.WaitGroup
+	cnLock        sync.RWMutex
 	closing       atomic.Bool
 	socket        bool
 	readDeadline  deadlineHandler
@@ -86,18 +86,18 @@ func makeFile(h windows.Handle) (*file, error) {
 
 // closeHandle closes the resources associated with a Win32 handle
 func (f *file) closeHandle() {
-	f.wgLock.Lock()
+	f.cnLock.Lock()
 	// Atomically set that we are closing, releasing the resources only once.
 	if f.closing.Swap(true) == false {
-		f.wgLock.Unlock()
+		f.cnLock.Unlock()
 		// cancel all IO and wait for it to complete
 		windows.CancelIoEx(f.handle, nil)
-		f.wg.Wait()
+		f.cn.Wait()
 		// at this point, no new IO can start
 		windows.Close(f.handle)
 		f.handle = 0
 	} else {
-		f.wgLock.Unlock()
+		f.cnLock.Unlock()
 	}
 }
 
@@ -108,15 +108,15 @@ func (f *file) Close() error {
 }
 
 // prepareIo prepares for a new IO operation.
-// The caller must call f.wg.Done() when the IO is finished, prior to Close() returning.
+// The caller must call f.cn.Done() when the IO is finished, prior to Close() returning.
 func (f *file) prepareIo() (*ioOperation, error) {
-	f.wgLock.RLock()
+	f.cnLock.RLock()
 	if f.closing.Load() {
-		f.wgLock.RUnlock()
+		f.cnLock.RUnlock()
 		return nil, os.ErrClosed
 	}
-	f.wg.Add(1)
-	f.wgLock.RUnlock()
+	f.cn.Add(1)
+	f.cnLock.RUnlock()
 	c := &ioOperation{}
 	c.ch = make(chan ioResult)
 	return c, nil
@@ -189,7 +189,7 @@ func (f *file) Read(b []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer f.wg.Done()
+	defer f.cn.Done()
 
 	if f.readDeadline.timedout.Load() {
 		return 0, os.ErrDeadlineExceeded
@@ -216,7 +216,7 @@ func (f *file) Write(b []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer f.wg.Done()
+	defer f.cn.Done()
 
 	if f.writeDeadline.timedout.Load() {
 		return 0, os.ErrDeadlineExceeded
